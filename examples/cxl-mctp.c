@@ -178,6 +178,39 @@ static int play_with_device_timestamp(struct cxlmi_endpoint *ep)
 	return 0;
 }
 
+static int play_with_dcd_region_config(struct cxlmi_endpoint *ep)
+{
+    int i, rc;
+    struct cxlmi_cmd_dcd_get_dc_config_req req = {
+        .region_cnt = 8,
+        .start_region_id = 0,
+    };
+    struct cxlmi_cmd_dcd_get_dc_config_rsp *out;
+
+    out = calloc(1, sizeof(*out)+sizeof(out->records[0])*req.region_cnt);
+	if (!out)
+		return -1;
+    
+    rc = cxlmi_cmd_dcd_get_dc_config(ep, NULL, &req, out);
+	if (!rc)
+		return -1;
+    
+    printf("# of regions: %d\n", out->num_regions);
+    printf("# of regions returned: %d\n", out->regions_returned);
+    printf("# of extents supported: %d\n", out->num_extents_supported);
+    printf("# of extents available: %d\n", out->num_extents_available);
+    printf("# of tags supported: %d\n", out->num_tags_supported);
+    printf("# of tags available: %d\n", out->num_tags_available);
+
+    for (i = 0; i < out->regions_returned; i++) {
+        printf("region %d: base %lu decode len %lu region len %lu block size %lu\n",
+                req.start_region_id + i, out->records[i].base, out->records[i].decode_len,
+                out->records[i].region_len, out->records[i].block_size);
+    }
+
+    return rc;
+}
+
 static const uint8_t cel_uuid[0x10] = { 0x0d, 0xa9, 0xc0, 0xb5,
 					0xbf, 0x41,
 					0x4b, 0x78,
@@ -341,6 +374,8 @@ int main(int argc, char **argv)
 		rc = show_device_info(ep);
 
 		rc = play_with_device_timestamp(ep);
+
+        rc = play_with_dcd_region_config(ep);
 
 		rc = get_device_logs(ep);
 

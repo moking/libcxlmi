@@ -1213,3 +1213,67 @@ CXLMI_EXPORT int cxlmi_cmd_fmapi_get_phys_port_state(struct cxlmi_endpoint *ep,
 
 	return rc;
 }
+
+CXLMI_EXPORT int cxlmi_cmd_dcd_get_dc_config(struct cxlmi_endpoint *ep,
+        struct cxlmi_tunnel_info *ti,
+        struct cxlmi_cmd_dcd_get_dc_config_req *in,
+        struct cxlmi_cmd_dcd_get_dc_config_rsp *ret)
+{
+	struct cxlmi_cmd_dcd_get_dc_config_req *req_pl;
+	struct cxlmi_cmd_dcd_get_dc_config_rsp *rsp_pl;
+	_cleanup_free_ struct cxlmi_cci_msg *req = NULL;
+	_cleanup_free_ struct cxlmi_cci_msg *rsp = NULL;
+	ssize_t req_sz, rsp_sz;
+    void *p;
+	int i, rc = -1;
+
+    req_sz = sizeof(*req_pl) + sizeof(*req);
+
+	req = calloc(1, req_sz);
+	if (!req)
+		return -1;
+
+	arm_cci_request(ep, req, sizeof(*req_pl), DCD_CONFIG, GET_DC_CONFIG);
+	req_pl = (struct cxlmi_cmd_dcd_get_dc_config_req *)req->payload;
+    req_pl->region_cnt = in->region_cnt;
+    req_pl->start_region_id = in->start_region_id;
+
+    rsp_sz = sizeof(rsp) + sizeof(rsp_pl) + (8-in->start_region_id)*sizeof(rsp_pl->records[0]);
+	rsp = calloc(1, rsp_sz);
+	if (!rsp)
+		return -1;
+
+	rc = send_cmd_cci(ep, ti, req, req_sz, rsp, rsp_sz, rsp_sz);
+	if (rc)
+		return rc;
+
+	rsp_pl = (struct cxlmi_cmd_dcd_get_dc_config_rsp *)rsp->payload;
+	memset(ret, 0, sizeof(*ret));
+
+    ret->num_regions = rsp_pl->num_regions;
+    ret->regions_returned = rsp_pl->regions_returned;
+    p = (void *)rsp_pl + 8;
+    for (i = 0; i < ret->regions_returned; i++) {
+        ret->records[i].base = le64_to_cpu(*(uint64_t *)p);
+        p += sizeof(uint64_t);
+        ret->records[i].decode_len = le64_to_cpu(*(uint64_t *)p);
+        p += sizeof(uint64_t);
+        ret->records[i].region_len = le64_to_cpu(*(uint64_t *)p);
+        p += sizeof(uint64_t);
+        ret->records[i].block_size = le64_to_cpu(*(uint64_t *)p);
+        p += sizeof(uint64_t);
+        ret->records[i].dsmadhandle = le32_to_cpu(*(uint32_t *)p);
+        p += sizeof(uint32_t);
+        ret->records[i].flags = *(uint8_t *)p;
+        p += 4;
+    }
+    ret->num_extents_supported = le32_to_cpu(*(uint32_t *)p);
+    p += sizeof(uint32_t);
+    ret->num_extents_available = le32_to_cpu(*(uint32_t *)p);
+    p += sizeof(uint32_t);
+    ret->num_tags_supported = le32_to_cpu(*(uint32_t *)p);
+    p += sizeof(uint32_t);
+    ret->num_tags_available = le32_to_cpu(*(uint32_t *)p);
+
+    return rc;
+}
