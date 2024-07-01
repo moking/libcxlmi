@@ -482,6 +482,12 @@ int cxlmi_cmd_dcd_get_dc_config(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_dcd_get_dc_config_req *in,
 			struct cxlmi_cmd_dcd_get_dc_config_rsp *ret);
+
+/* 8.2.9.9.9.2 Get Dynamic Capacity Extent List (Opcode 4801h) */
+int cxlmi_cmd_dcd_get_dc_extent_list(struct cxlmi_endpoint *ep,
+            struct cxlmi_tunnel_info *ti,
+            struct cxlmi_cmd_dcd_get_dc_extent_list_req *in,
+            struct cxlmi_cmd_dcd_get_dc_extent_list_rsp *ret);
 #ifdef __cplusplus
 }
 #endif

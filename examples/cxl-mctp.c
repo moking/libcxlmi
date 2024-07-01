@@ -211,6 +211,50 @@ static int play_with_dcd_region_config(struct cxlmi_endpoint *ep)
     return rc;
 }
 
+static int play_with_dc_extents(struct cxlmi_endpoint *ep)
+{
+    int i, rc;
+    uint64_t total_cnt, extent_returned = 0;
+
+    struct cxlmi_cmd_dcd_get_dc_extent_list_req req = {
+        .extent_cnt = 0,
+        .start_extent_idx = 0,
+    };
+    struct cxlmi_cmd_dcd_get_dc_extent_list_rsp *out;
+
+    out = calloc(1, sizeof(*out) + sizeof(out->extents[0]) * 8);
+	if (!out)
+		return -1;
+    
+    rc = cxlmi_cmd_dcd_get_dc_extent_list(ep, NULL, &req, out);
+	if (!rc)
+		return rc;
+    
+    printf("# of total extents: %d\n", out->total_num_extents);
+    printf("generation number: %d\n", out->generation_num);
+
+    total_cnt = out->total_num_extents;
+
+    do {
+        req.start_extent_idx += extent_returned;
+        req.extent_cnt = total_cnt - req.start_extent_idx;
+
+        rc = cxlmi_cmd_dcd_get_dc_extent_list(ep, NULL, &req, out);
+        if (!rc)
+            return rc;
+
+        printf("# of extents returned: %d\n", out->num_extents_returned);
+        for (i = 0; i < out->num_extents_returned; i++) {
+        printf("extent[%u] : %lx, %lx\n", i + req.start_extent_idx,
+               out->extents[i].start_dpa,
+               out->extents[i].len);
+        }
+        extent_returned += out->num_extents_returned;
+    } while (extent_returned < total_cnt);
+
+    return rc;
+}
+
 static const uint8_t cel_uuid[0x10] = { 0x0d, 0xa9, 0xc0, 0xb5,
 					0xbf, 0x41,
 					0x4b, 0x78,
@@ -376,6 +420,8 @@ int main(int argc, char **argv)
 		rc = play_with_device_timestamp(ep);
 
         rc = play_with_dcd_region_config(ep);
+
+        rc = play_with_dc_extents(ep);
 
 		rc = get_device_logs(ep);
 
