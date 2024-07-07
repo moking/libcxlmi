@@ -493,6 +493,11 @@ int cxlmi_cmd_dcd_get_dc_extent_list(struct cxlmi_endpoint *ep,
 int cxlmi_cmd_dcd_add_dyn_cap_response(struct cxlmi_endpoint *ep,
             struct cxlmi_tunnel_info *ti,
             struct cxlmi_cmd_dcd_updated_dyn_cap_req *in);
+
+/* 8.2.9.9.9.4 Release Dynamic Capacity (Opcode 4803h) */
+int cxlmi_cmd_dcd_add_dyn_cap_response(struct cxlmi_endpoint *ep,
+            struct cxlmi_tunnel_info *ti,
+            struct cxlmi_cmd_dcd_updated_dyn_cap_req *in);
 #ifdef __cplusplus
 }
 #endif
