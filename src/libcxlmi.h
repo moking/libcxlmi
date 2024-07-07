@@ -488,6 +488,11 @@ int cxlmi_cmd_dcd_get_dc_extent_list(struct cxlmi_endpoint *ep,
             struct cxlmi_tunnel_info *ti,
             struct cxlmi_cmd_dcd_get_dc_extent_list_req *in,
             struct cxlmi_cmd_dcd_get_dc_extent_list_rsp *ret);
+
+/* 8.2.9.9.9.3 Ad Dynamic Capacity Response (Opcode 4802h) */
+int cxlmi_cmd_dcd_add_dyn_cap_response(struct cxlmi_endpoint *ep,
+            struct cxlmi_tunnel_info *ti,
+            struct cxlmi_cmd_dcd_updated_dyn_cap_req *in);
 #ifdef __cplusplus
 }
 #endif
