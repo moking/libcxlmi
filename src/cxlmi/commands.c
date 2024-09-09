@@ -1888,3 +1888,70 @@ CXLMI_EXPORT int cxlmi_cmd_fmapi_set_qos_bw_limit(struct cxlmi_endpoint *ep,
 
 	return rc;
 }
+
+#define CXL_CAPACITY_MULTIPLIER   (256 * 1024 * 1024)
+CXLMI_EXPORT int cxlmi_cmd_memdev_get_dc_config(struct cxlmi_endpoint *ep,
+		struct cxlmi_tunnel_info *ti,
+		struct cxlmi_cmd_memdev_get_dc_config_req *in,
+		struct cxlmi_cmd_memdev_get_dc_config_rsp *ret,
+		struct cxlmi_cmd_memdev_get_dc_config_rsp_extra *ret_extra)
+{
+	struct cxlmi_cmd_memdev_get_dc_config_req *req_pl;
+	struct cxlmi_cmd_memdev_get_dc_config_rsp *rsp_pl;
+	_cleanup_free_ struct cxlmi_cci_msg *req = NULL;
+	_cleanup_free_ struct cxlmi_cci_msg *rsp = NULL;
+	ssize_t req_sz, rsp_sz, rsp_sz_min;
+	void *p;
+	int i, rc = -1;
+
+	req_sz = sizeof(*req_pl) + sizeof(*req);
+
+	req = calloc(1, req_sz);
+	if (!req)
+		return -1;
+
+	arm_cci_request(ep, req, sizeof(*req_pl), DCD_CONFIG, GET_DC_CONFIG);
+	req_pl = (struct cxlmi_cmd_memdev_get_dc_config_req *)req->payload;
+	req_pl->region_cnt = in->region_cnt;
+	req_pl->start_region_id = in->start_region_id;
+
+	rsp_sz_min = sizeof(rsp) + sizeof(rsp_pl);
+	rsp_sz = sizeof(rsp) + sizeof(rsp_pl) + (8-in->start_region_id)*sizeof(rsp_pl->region_configs[0]) + sizeof(*ret_extra);
+	rsp = calloc(1, rsp_sz);
+	if (!rsp)
+		return -1;
+
+	rc = send_cmd_cci(ep, ti, req, req_sz, rsp, rsp_sz, rsp_sz_min);
+	if (rc)
+		return rc;
+
+	rsp_pl = (struct cxlmi_cmd_memdev_get_dc_config_rsp *)rsp->payload;
+	memset(ret, 0, sizeof(*ret));
+
+	ret->num_regions = rsp_pl->num_regions;
+	ret->regions_returned = rsp_pl->regions_returned;
+	p = (void *)rsp_pl + 8;
+	for (i = 0; i < ret->regions_returned; i++) {
+		ret->region_configs[i].base = le64_to_cpu(*(uint64_t *)p);
+		p += sizeof(uint64_t);
+		ret->region_configs[i].decode_len = le64_to_cpu(*(uint64_t *)p) * CXL_CAPACITY_MULTIPLIER;
+		p += sizeof(uint64_t);
+		ret->region_configs[i].region_len = le64_to_cpu(*(uint64_t *)p);
+		p += sizeof(uint64_t);
+		ret->region_configs[i].block_size = le64_to_cpu(*(uint64_t *)p);
+		p += sizeof(uint64_t);
+		ret->region_configs[i].dsmadhandle = le32_to_cpu(*(uint32_t *)p);
+		p += sizeof(uint32_t);
+		ret->region_configs[i].flags = *(uint8_t *)p;
+		p += 4;
+	}
+	ret_extra->num_extents_supported = le32_to_cpu(*(uint32_t *)p);
+	p += sizeof(uint32_t);
+	ret_extra->num_extents_available = le32_to_cpu(*(uint32_t *)p);
+	p += sizeof(uint32_t);
+	ret_extra->num_tags_supported = le32_to_cpu(*(uint32_t *)p);
+	p += sizeof(uint32_t);
+	ret_extra->num_tags_available = le32_to_cpu(*(uint32_t *)p);
+
+	return rc;
+}

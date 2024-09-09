@@ -300,3 +300,54 @@ int cxlmi_cmd_memdev_get_security_state(struct cxlmi_endpoint *ep,
 				struct cxlmi_tunnel_info *ti,
 				struct cxlmi_cmd_memdev_get_security_state *ret);
    ```
+
+
+# Dynamic Capacity (48h)
+
+## Get Dynamic Capacity Configuration (4800h)
+
+Input payload:
+
+   ```C
+struct cxlmi_cmd_memdev_get_dc_config_req {
+	uint8_t region_cnt;
+	uint8_t start_region_id;
+};
+   ```
+
+Return payload:
+
+   ```C
+struct cxlmi_cmd_memdev_get_dc_config_rsp {
+	uint8_t num_regions;
+	uint8_t regions_returned;
+	uint8_t rsvd1[6];
+	struct {
+		uint64_t base;
+		uint64_t decode_len;
+		uint64_t region_len;
+		uint64_t block_size;
+		uint32_t dsmadhandle;
+		uint8_t flags;
+		uint8_t rsvd2[3];
+	} region_configs[];
+};
+   ```
+   ```C
+struct cxlmi_cmd_memdev_get_dc_config_rsp_extra {
+	uint32_t num_extents_supported;
+	uint32_t num_extents_available;
+	uint32_t num_tags_supported;
+	uint32_t num_tags_available;
+};
+   ```
+
+Command name:
+
+   ```C
+int cxlmi_cmd_memdev_get_dc_config(struct cxlmi_endpoint *ep,
+			struct cxlmi_tunnel_info *ti,
+			struct cxlmi_cmd_memdev_get_dc_config_req *in,
+			struct cxlmi_cmd_memdev_get_dc_config_rsp *ret,
+			struct cxlmi_cmd_memdev_get_dc_config_rsp_extra *ret_extra);
+   ```

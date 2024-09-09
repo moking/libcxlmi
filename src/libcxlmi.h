@@ -532,7 +532,11 @@ int cxlmi_cmd_fmapi_set_qos_bw_limit(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_set_qos_bw_limit *in,
 			struct cxlmi_cmd_fmapi_set_qos_bw_limit *ret);
-
+int cxlmi_cmd_memdev_get_dc_config(struct cxlmi_endpoint *ep,
+			struct cxlmi_tunnel_info *ti,
+			struct cxlmi_cmd_memdev_get_dc_config_req *in,
+			struct cxlmi_cmd_memdev_get_dc_config_rsp *ret,
+			struct cxlmi_cmd_memdev_get_dc_config_rsp_extra *ret_extra);
 #ifdef __cplusplus
 }
 #endif
