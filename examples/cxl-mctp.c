@@ -11,6 +11,8 @@
 
 #include <libcxlmi.h>
 
+static int show_dc_extents(struct cxlmi_endpoint *ep);
+
 static int show_memdev_info(struct cxlmi_endpoint *ep)
 {
 	int rc;
@@ -208,6 +210,56 @@ static int play_with_dcd(struct cxlmi_endpoint *ep)
 				out->records[i].decode_len, out->records[i].region_len,
 				out->records[i].block_size);
 	}
+
+	if (out->num_regions) {
+		show_dc_extents(ep);
+	}
+
+	return rc;
+}
+
+static int show_dc_extents(struct cxlmi_endpoint *ep)
+{
+	int i, rc;
+	uint64_t total_cnt, extent_returned = 0;
+	bool first = true;
+
+	struct cxlmi_cmd_dcd_get_dc_extent_list_req req = {
+		.extent_cnt = 0,
+		.start_extent_idx = 0,
+	};
+	struct cxlmi_cmd_dcd_get_dc_extent_list_rsp *out;
+
+	out = calloc(1, sizeof(*out) + sizeof(out->extents[0]) * 8);
+	if (!out)
+		return -1;
+
+	do {
+		printf("Try to read %d extents starting with id: %d\n",
+				req.extent_cnt, req.start_extent_idx);
+		rc = cxlmi_cmd_dcd_get_dc_extent_list(ep, NULL, &req, out);
+		if (rc)
+			return rc;
+
+		if (first) {
+			total_cnt = out->total_num_extents;
+
+			printf("# of total extents: %d\n", out->total_num_extents);
+			printf("generation number: %d\n", out->generation_num);
+			first = false;
+		}
+
+		printf("# of extents returned: %u\n", out->num_extents_returned);
+		for (i = 0; i < out->num_extents_returned; i++) {
+			printf("extent[%u] : [%lx, %lx]\n", i + req.start_extent_idx,
+					out->extents[i].start_dpa,
+					out->extents[i].len);
+		}
+
+		extent_returned += out->num_extents_returned;
+		req.start_extent_idx = extent_returned;
+		req.extent_cnt = total_cnt - extent_returned;
+	} while (extent_returned < total_cnt);
 
 	return rc;
 }
