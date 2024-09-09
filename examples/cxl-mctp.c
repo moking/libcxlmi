@@ -202,6 +202,8 @@ static int issue_dynamic_capacity_operation(struct cxlmi_endpoint *ep, bool add)
 
 	if (add)
 		rc = cxlmi_cmd_dcd_add_dyn_cap_response(ep, NULL, req);
+	else
+		rc = cxlmi_cmd_dcd_release_dyn_cap(ep, NULL, req);
 
 	return rc;
 }
@@ -240,6 +242,8 @@ static int play_with_dcd(struct cxlmi_endpoint *ep)
 	if (out->num_regions) {
 		show_dc_extents(ep);
 		issue_dynamic_capacity_operation(ep, true);
+		show_dc_extents(ep);
+		issue_dynamic_capacity_operation(ep, false);
 		show_dc_extents(ep);
 	}
 
