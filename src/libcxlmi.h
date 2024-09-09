@@ -532,7 +532,15 @@ int cxlmi_cmd_fmapi_set_qos_bw_limit(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_set_qos_bw_limit *in,
 			struct cxlmi_cmd_fmapi_set_qos_bw_limit *ret);
-
+/*
+ * Definitions for Dynamic Capacity Device (DCD) commands.
+ * per CXL r3.1 Table 8-126.
+ */
+/* 8.2.9.9.9.1 Get Dynamic Capacity Configuration (Opcode 4800h) */
+int cxlmi_cmd_dcd_get_dc_config(struct cxlmi_endpoint *ep,
+			struct cxlmi_tunnel_info *ti,
+			struct cxlmi_cmd_dcd_get_dc_config_req *in,
+			struct cxlmi_cmd_dcd_get_dc_config_rsp *ret);
 #ifdef __cplusplus
 }
 #endif

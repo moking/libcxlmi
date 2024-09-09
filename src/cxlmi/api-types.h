@@ -505,4 +505,28 @@ struct cxlmi_cmd_fmapi_set_qos_bw_limit {
 	uint8_t qos_limit_fraction[];
 } __attribute__((packed));
 
+/* CXL r3.1 Section 8.2.9.9.9.1 Get Dynamic Capacity Configuration (Opcode 4800h) */
+struct cxlmi_cmd_dcd_get_dc_config_req {
+	uint8_t region_cnt;
+	uint8_t start_region_id;
+} __attribute__((packed));
+
+struct cxlmi_cmd_dcd_get_dc_config_rsp {
+	uint8_t num_regions;
+	uint8_t regions_returned;
+	uint8_t rsvd1[6];
+	uint32_t num_extents_supported;
+	uint32_t num_extents_available;
+	uint32_t num_tags_supported;
+	uint32_t num_tags_available;
+	struct {
+		uint64_t base;
+		uint64_t decode_len;
+		uint64_t region_len;
+		uint64_t block_size;
+		uint32_t dsmadhandle;
+		uint8_t flags;
+		uint8_t rsvd2[3];
+	} __attribute__((packed)) records[];
+} __attribute__((packed));
 #endif
