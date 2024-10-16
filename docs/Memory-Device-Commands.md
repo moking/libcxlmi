@@ -267,7 +267,6 @@ Command name:
 
    ```C
 int cxlmi_cmd_memdev_sanitize(struct cxlmi_endpoint *ep, struct cxlmi_tunnel_info *ti);
-
    ```
 
 ## Secure Erase (4401h)
