@@ -35,7 +35,7 @@ command set, as per the latest specification.
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_identify_sw_device {
 	uint8_t ingres_port_id;
 	uint8_t rsv1;
@@ -47,30 +47,30 @@ struct cxlmi_cmd_fmapi_identify_sw_device {
 	uint16_t num_active_vppb;
 	uint8_t num_hdm_decoder_per_usp;
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_identify_sw_device(struct cxlmi_endpoint *ep,
 		       struct cxlmi_tunnel_info *ti,
 		       struct cxlmi_cmd_fmapi_identify_sw_device *ret);
-   ```
+</pre>
 
 ## Get Physical Port State (5101h)
 
 Input payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_phys_port_state_req {
 	uint8_t num_ports;
 	uint8_t ports[];
 };
-   ```
+</pre>
 
 Return payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_port_state_info_block {
 	uint8_t port_id;
 	uint8_t config_state;
@@ -94,125 +94,125 @@ struct cxlmi_cmd_fmapi_get_phys_port_state_rsp {
 	uint8_t rsv1[3];
 	struct cxlmi_cmd_fmapi_port_state_info_block ports[];
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_get_phys_port_state(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_get_phys_port_state_req *in,
 			struct cxlmi_cmd_fmapi_get_phys_port_state_rsp *ret);
-   ```
+</pre>
 
 ## Physical Port Control (5102h)
 
 Input payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_phys_port_control {
 	uint8_t ppb_id;
 	uint8_t port_opcode;
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_phys_port_control(struct cxlmi_endpoint *ep,
 				 struct cxlmi_tunnel_info *ti,
 				 struct cxlmi_cmd_fmapi_phys_port_control *in);
-   ```
+</pre>
 
 ## Get Domain Validation SV State (5104h)
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_domain_validation_sv_state {
 	uint8_t secret_value_state;
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_get_domain_validation_sv_state(struct cxlmi_endpoint *ep,
 				 struct cxlmi_tunnel_info *ti,
 				 struct cxlmi_cmd_fmapi_get_domain_validation_sv_state *ret);
-   ```
+</pre>
 
 ## Set Domain Validation SV (5105h)
 
 Input payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_set_domain_validation_sv {
 	uint8_t secret_value_uuid[0x10];
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_set_domain_validation_sv(struct cxlmi_endpoint *ep,
 				 struct cxlmi_tunnel_info *ti,
 				 struct cxlmi_cmd_fmapi_set_domain_validation_sv *in);
-   ```
+</pre>
 
 ## Get VCS Domain Validation SV State (5106h)
 
 Input payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_vcs_domain_validation_sv_state_req {
 	uint8_t vcs_id;
 };
-   ```
+</pre>
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_vcs_domain_validation_sv_state_rsp {
 	uint8_t secret_value_state;
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_get_vcs_domain_validation_sv_state(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_get_vcs_domain_validation_sv_state_req *in,
 			struct cxlmi_cmd_fmapi_get_vcs_domain_validation_sv_state_rsp *ret);
-   ```
+</pre>
 
 ## Get Domain Validation SV (5107h)
 
 Input payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_domain_validation_sv_req {
 	uint8_t vcs_id;
 };
-   ```
+</pre>
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_domain_validation_sv_rsp {
 	uint8_t secret_value_uuid[0x10];
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_get_domain_validation_sv(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_get_domain_validation_sv_req *in,
 			struct cxlmi_cmd_fmapi_get_domain_validation_sv_rsp *ret);
-   ```
+</pre>
 
 # MLD Port (53h)
 
@@ -227,7 +227,7 @@ MLD port  of a CXL Switch.  Tunneling targets are: valid LDs within an MLD
 
 For more information refer to [Issuing CCI Commands](https://github.com/computexpresslink/libcxlmi/tree/main?tab=readme-ov-file#issuing-cci-commands).
 
-   ```C
+<pre>
 /*
  * cxlmi_tunnel_info - Tunneling information associated with a specific command
  * @port: switch downstream port number
@@ -239,7 +239,7 @@ struct cxlmi_tunnel_info {
 	int ld;
 	int level;
 };
-   ```
+</pre>
 
 
 # MLD Components (54h)
@@ -248,36 +248,36 @@ struct cxlmi_tunnel_info {
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_ld_info {
 	uint64_t memory_size;
 	uint16_t ld_count;
 	uint8_t qos_telemetry_capability;
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_get_ld_info(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_get_ld_info *ret);
-   ```
+</pre>
 
 ## Get LD Allocations (5401h)
 
 Input payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_ld_allocations_req {
 	uint8_t start_ld_id;
 	uint8_t ld_allocation_list_limit;
 };
-   ```
+</pre>
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapu_ld_allocations_list {
 	uint64_t range_1_allocation_mult;
 	uint64_t range_2_allocation_mult;
@@ -290,55 +290,55 @@ struct cxlmi_cmd_fmapi_get_ld_allocations_rsp {
 	uint8_t ld_allocation_list_len;
 	struct cxlmi_cmd_fmapu_ld_allocations_list ld_allocation_list[];
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_get_ld_allocations(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_get_ld_allocations_req *in,
 			struct cxlmi_cmd_fmapi_get_ld_allocations_rsp *ret);
-   ```
+</pre>
 
 ## Set LD Allocations (5402h)
 
 Input payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_set_ld_allocations_req {
 	uint8_t number_ld;
 	uint8_t start_ld_id;
 	uint8_t rsvd[2];
 	struct cxlmi_cmd_fmapu_ld_allocations_list ld_allocation_list[];
 };
-   ```
+</pre>
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_set_ld_allocations_rsp {
 	uint8_t number_ld;
 	uint8_t start_ld_id;
 	uint8_t rsvd[2];
 	struct cxlmi_cmd_fmapu_ld_allocations_list ld_allocation_list[];
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_set_ld_allocations(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_set_ld_allocations_req *in,
 			struct cxlmi_cmd_fmapi_set_ld_allocations_rsp *ret);
-   ```
+</pre>
 
 ## Get QoS Control (5403h)
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_qos_control {
 	uint8_t qos_telemetry_control;
 	uint8_t egress_moderate_percentage;
@@ -347,21 +347,21 @@ struct cxlmi_cmd_fmapi_get_qos_control {
 	uint16_t recmpbasis;
 	uint8_t completion_collection_interval;
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_get_qos_control(struct cxlmi_endpoint *ep,
 				    struct cxlmi_tunnel_info *ti,
 				    struct cxlmi_cmd_fmapi_get_qos_control *ret);
-   ```
+</pre>
 
 ## Set QoS Control (5404h)
 
 Input/Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_set_qos_control {
 	uint8_t qos_telemetry_control;
 	uint8_t egress_moderate_percentage;
@@ -370,133 +370,133 @@ struct cxlmi_cmd_fmapi_set_qos_control {
 	uint16_t recmpbasis;
 	uint8_t completion_collection_interval;
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_set_qos_control(struct cxlmi_endpoint *ep,
 				    struct cxlmi_tunnel_info *ti,
 				    struct cxlmi_cmd_fmapi_set_qos_control *in,
 				    struct cxlmi_cmd_fmapi_set_qos_control *ret);
-   ```
+</pre>
 
 ## Get QoS Status (5405h)
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_qos_status {
 	uint8_t backpressure_avg_percentage;
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_get_qos_status(struct cxlmi_endpoint *ep,
 			    struct cxlmi_tunnel_info *ti,
 			    struct cxlmi_cmd_fmapi_get_qos_status *ret);
-   ```
+</pre>
 
 ## Get QoS Allocated BW (5406h)
 
 Input payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_qos_allocated_bw_req {
 	uint8_t number_ld;
 	uint8_t start_ld_id;
 };
-   ```
+</pre>
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_qos_allocated_bw_rsp {
 	uint8_t number_ld;
 	uint8_t start_ld_id;
 	uint8_t qos_allocation_fraction[];
 } __attribute__((packed));
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_get_qos_allocated_bw(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_get_qos_allocated_bw_req *in,
 			struct cxlmi_cmd_fmapi_get_qos_allocated_bw_rsp *ret);
-   ```
+</pre>
 
 ## Set QoS Allocated BW (5407h)
 
 Input/Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_set_qos_allocated_bw {
 	uint8_t number_ld;
 	uint8_t start_ld_id;
 	uint8_t qos_allocation_fraction[];
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_set_qos_allocated_bw(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_set_qos_allocated_bw *in,
 			struct cxlmi_cmd_fmapi_set_qos_allocated_bw *ret);
-   ```
+</pre>
 
 ## Get QoS BW Limit (5408h)
 
 Input payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_qos_bw_limit_req {
 	uint8_t number_ld;
 	uint8_t start_ld_id;
 };
-   ```
+</pre>
 
 Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_get_qos_bw_limit_rsp {
 	uint8_t number_ld;
 	uint8_t start_ld_id;
 	uint8_t qos_limit_fraction[];
 } __attribute__((packed));
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_get_qos_bw_limit(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_get_qos_bw_limit_req *in,
 			struct cxlmi_cmd_fmapi_get_qos_bw_limit_rsp *ret);
-   ```
+</pre>
 
 ## Set QoS BW Limit (5409h)
 
 Input/Output payload:
 
-   ```C
+<pre>
 struct cxlmi_cmd_fmapi_set_qos_bw_limit {
 	uint8_t number_ld;
 	uint8_t start_ld_id;
 	uint8_t qos_limit_fraction[];
 };
-   ```
+</pre>
 
 Command name:
 
-   ```C
+<pre>
 int cxlmi_cmd_fmapi_set_qos_bw_limit(struct cxlmi_endpoint *ep,
 			struct cxlmi_tunnel_info *ti,
 			struct cxlmi_cmd_fmapi_set_qos_bw_limit *in,
 			struct cxlmi_cmd_fmapi_set_qos_bw_limit *ret);
-   ```
+</pre>
