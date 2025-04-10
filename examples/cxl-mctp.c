@@ -11,6 +11,8 @@
 
 #include <libcxlmi.h>
 
+#define SIZE_MB (1024 * 1024)
+
 typedef enum CxlExtentSelectionPolicy {
     CXL_EXTENT_SELECTION_POLICY_FREE,
     CXL_EXTENT_SELECTION_POLICY_CONTIGUOUS,
@@ -791,7 +793,7 @@ static int test_fmapi_initiate_dc_add(struct cxlmi_endpoint *ep)
 	req->ext_count = 1;
 
 	req->extents[0].start_dpa = 0;	// grabbed from printing reg_1.base and len in qemu.log
-	req->extents[0].len = 128;
+	req->extents[0].len = 128 * SIZE_MB;
 
 	rc = cxlmi_cmd_fmapi_initiate_dc_add(ep, NULL, req);
 	if (rc) {
@@ -1024,7 +1026,6 @@ static int play_with_fmapi_dcd_management(struct cxlmi_endpoint *ep)
 {
 	if (test_fmapi_get_dcd_info(ep)
 		|| test_fmapi_get_host_dc_region_config(ep)
-		|| test_fmapi_set_dc_region_config(ep)
 		|| test_fmapi_get_dc_region_extent_list(ep)
 		|| test_fmapi_initiate_dc_add(ep)
 		|| test_fmapi_initiate_dc_release(ep)
