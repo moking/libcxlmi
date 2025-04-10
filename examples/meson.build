@@ -15,3 +15,12 @@ executable(
     dependencies: libcxlmi_dep,
     include_directories: [inc]
 )
+
+executable(
+    'cxl-dcd',
+    ['cxl-dcd.c'],
+    dependencies: libcxlmi_dep,
+    include_directories: [inc]
+)
+
+
