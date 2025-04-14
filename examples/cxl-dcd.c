@@ -754,7 +754,7 @@ void interactive_dc_operation(struct cxlmi_endpoint *ep)
 
 	while (!out) {
 		print_ext_list(ep, 0, 0, 0);
-		printf("Exercise add/release DC extents(0: add; 1: release; 9: exit: ");
+		printf("Exercise add/release DC extents(0: add; 1: release; 9: exit): ");
 		scanf("%d", &ch);
 		switch (ch) {
 			case 0: 
@@ -786,6 +786,7 @@ void interactive_dc_operation(struct cxlmi_endpoint *ep)
 					printf("Release extent succeed\n");
 					print_ext_list(ep, 0, 0, 0);
 				}
+				break;
 			case 9: 
 				out = 1;
 				break;
