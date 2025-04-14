@@ -363,10 +363,41 @@ free_out:
 	return rc;
 }
 
+static uint32_t get_dc_extent_cnt(struct cxlmi_endpoint *ep, uint16_t host_id)
+{
+	struct cxlmi_cmd_fmapi_get_dc_region_ext_list_req req;
+	struct cxlmi_cmd_fmapi_get_dc_region_ext_list_rsp *rsp;
+	uint32_t cnt = 0;
+	int rc;
+
+	req.host_id = host_id;
+	req.extent_count = 0;
+	req.start_ext_index = 0;
+
+	rsp = calloc(1, sizeof(*rsp)); 
+
+	if (!rsp) {
+		goto out;
+	}
+
+	rc = cxlmi_cmd_fmapi_get_dc_region_ext_list(ep, NULL, &req, rsp);
+	if (rc) {
+		printf("get dc extents return error: %d\n", rc);
+		goto free_out;
+	}
+
+	cnt = rsp->total_extents;
+free_out:
+	free(rsp);
+out:
+	return cnt;
+}
+
+
 static int print_ext_list(struct cxlmi_endpoint *ep,
-						uint16_t host_id,
-						uint32_t ext_cnt,
-						uint32_t start_ext_ind)
+			  uint16_t host_id,
+			  uint32_t ext_cnt,
+			  uint32_t start_ext_ind)
 {
 	int i, rc;
 	struct cxlmi_cmd_fmapi_get_dc_region_ext_list_req req;
@@ -376,6 +407,13 @@ static int print_ext_list(struct cxlmi_endpoint *ep,
 	req.host_id = host_id;
 	req.extent_count = ext_cnt;
 	req.start_ext_index = start_ext_ind;
+
+	if (!req.extent_count) {
+		req.extent_count = get_dc_extent_cnt(ep, host_id);
+		if (!req.extent_count) {
+			printf("Get zero extents due to empty list\n");
+		}
+	}
 
 	rsp = calloc(1, sizeof(*rsp) + req.extent_count * sizeof(rsp->extents[0]));
 
