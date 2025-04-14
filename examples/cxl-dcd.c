@@ -713,6 +713,7 @@ void interactive_dc_operation(struct cxlmi_endpoint *ep)
 	int rc;
 
 	while (!out) {
+		print_ext_list(ep, 0, 0, 0);
 		printf("Exercise add/release DC extents(0: add; 1: release; 9: exit: ");
 		scanf("%d", &ch);
 		switch (ch) {
@@ -721,18 +722,28 @@ void interactive_dc_operation(struct cxlmi_endpoint *ep)
 				scanf("%lu:%lu", &dpa, &size);
 				dpa *= SIZE_MB;
 				size *= SIZE_MB;
+				if (size == 0) {
+					printf("Size cannot be 0\n");
+					continue;
+				}
 				rc = send_init_dc_add_remove_req(ep, false, dpa, size);
 				if (rc == 0) {
 					printf("Add extent succeed\n");
+					print_ext_list(ep, 0, 0, 0);
 				}
 				break;
 			case 1:
 				scanf("%lu:%lu", &dpa, &size);
 				dpa *= SIZE_MB;
 				size *= SIZE_MB;
+				if (size == 0) {
+					printf("Size cannot be 0\n");
+					continue;
+				}
 				rc = send_init_dc_add_remove_req(ep, true, dpa, size);
 				if (rc == 0) {
 					printf("Release extent succeed\n");
+					print_ext_list(ep, 0, 0, 0);
 				}
 			case 9: 
 				out = 1;
