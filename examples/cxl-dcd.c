@@ -490,6 +490,7 @@ static int send_init_dc_add_remove_req(struct cxlmi_endpoint *ep, bool remove,
 		rc = cxlmi_cmd_fmapi_initiate_dc_add(ep, NULL, req);
 	else {
 		rls = (struct cxlmi_cmd_fmapi_initiate_dc_release_req *)req; 
+		rls->flags = CXL_EXTENT_REMOVAL_POLICY_PRESCRIPTIVE;
 		rc = cxlmi_cmd_fmapi_initiate_dc_release(ep, NULL, rls);
 	}
 	free(req);
@@ -752,8 +753,8 @@ void interactive_dc_operation(struct cxlmi_endpoint *ep)
 	int out = 0;
 	int rc;
 
+	print_ext_list(ep, 0, 0, 0);
 	while (!out) {
-		print_ext_list(ep, 0, 0, 0);
 		printf("Exercise add/release DC extents(0: add; 1: release; 9: exit): ");
 		scanf("%d", &ch);
 		switch (ch) {
