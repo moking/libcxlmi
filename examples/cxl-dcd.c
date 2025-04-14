@@ -202,9 +202,9 @@ static int parse_supported_logs(struct cxlmi_cmd_get_supported_logs *pl,
 	int i, j;
 
 	*cel_size = 0;
-	printf("Get Supported Logs Response %d\n",
+	/* 	printf("Get Supported Logs Response %d\n",
 	       pl->num_supported_log_entries);
-
+	 */
 	for (i = 0; i < pl->num_supported_log_entries; i++) {
 		for (j = 0; j < sizeof(pl->entries[i].uuid); j++) {
 			if (pl->entries[i].uuid[j] != cel_uuid[j])
@@ -212,7 +212,7 @@ static int parse_supported_logs(struct cxlmi_cmd_get_supported_logs *pl,
 		}
 		if (j == 0x10) {
 			*cel_size = pl->entries[i].log_size;
-			printf("\tCommand Effects Log (CEL) available\n");
+			// printf("\tCommand Effects Log (CEL) available\n");
 		}
 		for (j = 0; j < sizeof(pl->entries[i].uuid); j++) {
 			if (pl->entries[i].uuid[j] != ven_dbg[j])
