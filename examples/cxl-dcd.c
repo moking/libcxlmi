@@ -412,7 +412,9 @@ static int print_ext_list(struct cxlmi_endpoint *ep,
 		req.extent_count = get_dc_extent_cnt(ep, host_id);
 		if (!req.extent_count) {
 			printf("Get zero extents due to empty list\n");
+			return 0;
 		}
+		ext_cnt = req.extent_count;
 	}
 
 	rsp = calloc(1, sizeof(*rsp) + req.extent_count * sizeof(rsp->extents[0]));
@@ -444,14 +446,14 @@ again:
 	}
 
 	ext_done += rsp->extents_returned;
-	if (ext_done < ext_cnt ||
-		(ext_cnt == 0 && ext_done < rsp->total_extents))
+	req.extent_count -= rsp->extents_returned;
+	req.start_ext_index += rsp->extents_returned;
+	if (ext_done < ext_cnt)
 		goto again;
 
 free_out:
 	free(rsp);
 	return rc;
-
 }
 
 static int test_fmapi_get_dc_region_extent_list(struct cxlmi_endpoint *ep)
@@ -771,6 +773,7 @@ void interactive_dc_operation(struct cxlmi_endpoint *ep)
 				}
 				break;
 			case 1:
+				printf("Input dpa:size (in MB): ");
 				scanf("%lu:%lu", &dpa, &size);
 				dpa *= SIZE_MB;
 				size *= SIZE_MB;
