@@ -271,7 +271,7 @@ again:
 		goto free_out;
 
 	for (i = 0; i < rsp->extents_returned; i++) {
-		printf("\tExtent %d: [%luMB-%luMB]\n", i + ext_done,
+		printf("\tOffer %d: [%luMB-%luMB]\n", i + ext_done,
 	 rsp->extents[i].start_dpa / SIZE_MB, 
 	 rsp->extents[i].start_dpa / SIZE_MB + rsp->extents[i].len / SIZE_MB);
 		total_cap += rsp->extents[i].len;
