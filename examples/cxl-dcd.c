@@ -773,6 +773,61 @@ free_out:
 
 	return cap;
 }
+
+static int check_device_dc_capacity(struct cxlmi_endpoint *ep)
+{
+	int i, rc;
+	struct cxlmi_cmd_fmapi_get_dc_region_ext_list_req req;
+	struct cxlmi_cmd_fmapi_get_dc_region_ext_list_rsp *rsp;
+	uint32_t ext_done = 0, ext_cnt = 0;
+	uint64_t total_cap = 0;
+
+	req.host_id = 0;
+	req.start_ext_index = 0;
+	ext_cnt = get_dc_extent_cnt(ep, 0);
+	if (!req.extent_count) {
+		printf("Get zero extents due to empty list\n");
+		return 0;
+	}
+	/* Fetch two extents at a time */
+	req.extent_count = 2;
+
+	rsp = calloc(1, sizeof(*rsp) + req.extent_count * sizeof(rsp->extents[0]));
+
+	if (!rsp) {
+		return -1;
+	}
+
+again:
+	rc = cxlmi_cmd_fmapi_get_dc_region_ext_list(ep, NULL, &req, rsp);
+	if (rc) {
+		rc = -1;
+		goto free_out;
+	}
+
+	if (rsp->extents_returned == 0)
+		goto free_out;
+
+	for (i = 0; i < rsp->extents_returned; i++) {
+		printf("\tExtent %d: [%luMB-%luMB]\n", i + ext_done,
+	 rsp->extents[i].start_dpa / SIZE_MB, rsp->extents[i].len / SIZE_MB);
+		total_cap += rsp->extents[i].len;
+	}
+
+	ext_done += rsp->extents_returned;
+	req.start_ext_index += rsp->extents_returned;
+	if (ext_done < ext_cnt)
+		goto again;
+
+free_out:
+	free(rsp);
+
+	printf("Total capcity offered: %luMB, number of offering: %d\n",
+	total_cap / SIZE_MB, ext_done);
+	return rc;
+}
+
+
 /* This function returns extra capacity gained from compression */
 static uint64_t do_compression(uint64_t max_cap, uint64_t used_cap)
 {
@@ -785,11 +840,11 @@ static uint64_t do_compression(uint64_t max_cap, uint64_t used_cap)
 		return 0;
 	}
 	srand(time(NULL));
-	num = (rand() % 10) + 1;
+	num = (rand() % 3) + 1;
 	printf("Compressing the data ...\n");
 	sleep(num);
-	printf("Compressing the data ...\n");
-	size = (max_cap - used_cap) * num / 10;
+	size = num * 128 * SIZE_MB;
+	printf("Get %luMB capacity from compression\n", size / SIZE_MB);
 
 	return size;
 }
@@ -818,20 +873,24 @@ void simulate_compression_operations(struct cxlmi_endpoint *ep)
 			return;
 		}
 		cap_offered = init_cap_offer;
-		print_ext_list(ep, 0, 0, 0);
+		printf("Check capacity assigned: \n");
+		check_device_dc_capacity(ep);
+		printf("\n");
 		printf("Assign initial capacity succeed\n");
 		init_add = 0;
 	}
 
 	while (cap_offered < max_cap) {
 		cap_gained = do_compression(max_cap, cap_offered);
-		if (!cap_gained)
+		if (!cap_gained || cap_gained % (2 *SIZE_MB) != 0)
 			break;
+		printf("Offering %luMB to the host..\n", cap_gained / SIZE_MB);
 		rc = send_init_dc_add_remove_req(ep, false, cap_offered, cap_gained);
 		if (rc) {
 			printf("Offering cap failed\n");
 			return;
 		}
+		check_device_dc_capacity(ep);
 		cap_offered += cap_gained;
 	}
 }
