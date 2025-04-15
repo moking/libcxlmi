@@ -788,6 +788,9 @@ void interactive_dc_operation(struct cxlmi_endpoint *ep)
 					print_ext_list(ep, 0, 0, 0);
 				}
 				break;
+			case 2:
+				print_ext_list(ep, 0, 0, 0);
+				break;
 			case 9: 
 				out = 1;
 				break;
