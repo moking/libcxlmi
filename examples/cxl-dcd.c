@@ -823,7 +823,7 @@ again:
 free_out:
 	free(rsp);
 
-	printf("Total capcity offered: %luMB, number of offering: %d\n",
+	printf("Total capcity offered: %luMB, number of offering: %d\n\n",
 	total_cap / SIZE_MB, ext_done);
 	return rc;
 }
@@ -841,7 +841,7 @@ static uint64_t do_compression(uint64_t max_cap, uint64_t used_cap)
 		return 0;
 	}
 	srand(time(NULL));
-	num = (rand() % 3) + 1;
+	num = (rand() % 5) + 1;
 	printf("Compressing the data ...\n");
 	sleep(num);
 	size = num * 128 * SIZE_MB;
