@@ -785,7 +785,7 @@ static int check_device_dc_capacity(struct cxlmi_endpoint *ep)
 	req.host_id = 0;
 	req.start_ext_index = 0;
 	ext_cnt = get_dc_extent_cnt(ep, 0);
-	if (!req.extent_count) {
+	if (ext_cnt) {
 		printf("Get zero extents due to empty list\n");
 		return 0;
 	}
