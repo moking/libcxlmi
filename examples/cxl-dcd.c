@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <assert.h>
+#include <time.h>
 
 #include <libcxlmi.h>
 
@@ -495,6 +496,8 @@ static int send_init_dc_add_remove_req(struct cxlmi_endpoint *ep, bool remove,
 	}
 	free(req);
 
+	sleep(1);
+
 	return rc;
 }
 
@@ -746,16 +749,114 @@ static int play_with_fmapi_dcd_management(struct cxlmi_endpoint *ep)
 
 }
 
+#define DO_COMPRESS_SIMULATION 1
+#ifdef DO_COMPRESS_SIMULATION
+static uint64_t get_device_capacity_cap(struct cxlmi_endpoint *ep)
+{
+	int rc;
+	uint64_t cap = 0;
+	struct cxlmi_cmd_fmapi_get_dcd_info *out;
+
+	out = calloc(1, sizeof(*out));
+	if (!out)
+		return -1;
+
+	rc = cxlmi_cmd_fmapi_get_dcd_info(ep, NULL, out);
+	if (rc) {
+		rc = -1;
+		goto free_out;
+	}
+	cap = out->total_dynamic_capacity;
+
+free_out:
+	free(out);
+
+	return cap;
+}
+/* This function returns extra capacity gained from compression */
+static uint64_t do_compression(uint64_t max_cap, uint64_t used_cap)
+{
+	uint64_t size;
+	int num;
+
+	/* Do something here to simulate compression and get extra space */
+	if (used_cap >= max_cap) {
+		printf("Warning, capacity offered reach the cap!");
+		return 0;
+	}
+	srand(time(NULL));
+	num = (rand() % 10) + 1;
+	printf("Compressing the data ...\n");
+	sleep(num);
+	printf("Compressing the data ...\n");
+	size = (max_cap - used_cap) * num / 10;
+
+	return size;
+}
+
+void simulate_compression_operations(struct cxlmi_endpoint *ep)
+{
+	int rc;
+	static int init_add = 1;
+	uint64_t init_cap_offer;
+	uint64_t cap_offered = 0, cap_gained, max_cap = 0;
+
+	max_cap = get_device_capacity_cap(ep);
+	if (max_cap == 0) {
+		printf("Get device capacity failed\n");
+		return;
+	} else {
+		printf("Max device capacity: %luMB\n", max_cap / SIZE_MB);
+	}
+	init_cap_offer = max_cap / 8;
+	if (init_add) {
+		printf("Assign initial capacity to host: %luMB\n",
+	 init_cap_offer / SIZE_MB);
+		rc = send_init_dc_add_remove_req(ep, false, 0, init_cap_offer);
+		if (rc) {
+			printf("Init allocation failed\n");
+			return;
+		}
+		cap_offered = init_cap_offer;
+		print_ext_list(ep, 0, 0, 0);
+		printf("Assign initial capacity succeed\n");
+		init_add = 0;
+	}
+
+	while (cap_offered < max_cap) {
+		cap_gained = do_compression(max_cap, cap_offered);
+		if (!cap_gained)
+			break;
+		rc = send_init_dc_add_remove_req(ep, false, cap_offered, cap_gained);
+		if (rc) {
+			printf("Offering cap failed\n");
+			return;
+		}
+		cap_offered += cap_gained;
+	}
+}
+#else
 void interactive_dc_operation(struct cxlmi_endpoint *ep)
 {
 	int ch;
 	uint64_t dpa, size;
 	int out = 0;
 	int rc;
+	static int init_add = 1;
+	uint64_t init_size = (uint64_t)2048 * SIZE_MB;
 
 	print_ext_list(ep, 0, 0, 0);
+	if (init_add) {
+		printf("assign initial capacity to host: %luMB\n", init_size / SIZE_MB);
+		rc = send_init_dc_add_remove_req(ep, false, 0, init_size);
+		if (rc) {
+			printf("Init allocation failed\n");
+			return;
+		}
+		printf("Assign initial capacity succeed\n");
+	}
 	while (!out) {
-		printf("Exercise add/release DC extents(0: add; 1: release; 9: exit): ");
+		printf("Exercise add/release DC extents(0: add; 1: release; 2: display extents; 9: exit): ");
 		scanf("%d", &ch);
 		switch (ch) {
 			case 0: 
@@ -801,6 +902,7 @@ void interactive_dc_operation(struct cxlmi_endpoint *ep)
 			break;
 	}
 }
+#endif
 
 int main(int argc, char **argv)
 {
@@ -851,8 +953,13 @@ int main(int argc, char **argv)
 		if (ep_supports_op(ep, 0x5600)) {
 			if (0)
 				play_with_fmapi_dcd_management(ep);
-			else
+			else {
+#ifdef DO_COMPRESS_SIMULATION
+				simulate_compression_operations(ep);
+#else
 				interactive_dc_operation(ep);
+#endif
+			}
 		}
 		cxlmi_close(ep);
 
